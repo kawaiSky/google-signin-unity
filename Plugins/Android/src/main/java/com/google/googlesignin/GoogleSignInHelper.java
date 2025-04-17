@@ -94,11 +94,11 @@ public class GoogleSignInHelper {
     {
       if (e instanceof GetCredentialCancellationException) {
         // UserCancel
-        Log.d("Credential", "User canceled credential request");
+        logDebug("User canceled credential request");
         return CommonStatusCodes.CANCELED;
       } else if (e instanceof GetCredentialException) {
         // other Credential Exception
-        Log.w("Credential", "Credential exception occurred: " + e.getClass().getSimpleName());
+        logError("Credential exception occurred: " + e.getClass().getSimpleName());
         return CommonStatusCodes.INTERNAL_ERROR;
       } else {
         // Not Credential Exception
