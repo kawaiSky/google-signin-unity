@@ -145,7 +145,7 @@ namespace Google.Impl {
 
 		public void onFailure(AndroidJavaObject exception)
 		{
-			Debug.LogErrorFormat("onFailure {0} : {1}",exception?.Call<AndroidJavaObject>("getClass").Call<string>("toString"),exception?.Call<string>("getMessage"));
+			//Debug.LogErrorFormat("onFailure {0} : {1}",exception?.Call<AndroidJavaObject>("getClass").Call<string>("toString"),exception?.Call<string>("getMessage"));
 			exception.Dispose();
 		}
 
