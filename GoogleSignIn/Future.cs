@@ -25,6 +25,8 @@ namespace Google {
     bool Pending { get; }
     GoogleSignInStatusCode Status { get; }
     T Result { get; }
+
+    string ErrorMessage { get; }
   }
 
   /// <summary>
@@ -57,6 +59,8 @@ namespace Google {
     /// <value>The status is set when Pending == false.</value>
     public GoogleSignInStatusCode Status { get { return apiImpl.Status; } }
 
+    public string ErrorMessage { get { return apiImpl.ErrorMessage; } }
+
     /// <summary>
     /// Gets the result.
     /// </summary>
@@ -72,13 +76,20 @@ namespace Google {
     internal IEnumerator WaitForResult(TaskCompletionSource<T> tcs) {
       yield return new WaitUntil(() => !Pending);
       yield return null;
-      if (Status == GoogleSignInStatusCode.CANCELED) {
+      var _status = Status;
+      if (_status == GoogleSignInStatusCode.CANCELED)
+      {
         tcs.SetCanceled();
-      } else if (Status == GoogleSignInStatusCode.SUCCESS ||
-            Status == GoogleSignInStatusCode.SUCCESS_CACHE) {
+      }
+      else if (_status == GoogleSignInStatusCode.SUCCESS ||
+            _status == GoogleSignInStatusCode.SUCCESS_CACHE)
+      {
         tcs.SetResult(Result);
-      } else {
-        tcs.SetException(new GoogleSignIn.SignInException(Status));
+      }
+      else
+      {
+        UnityEngine.Debug.LogError($"1111{ErrorMessage}");
+        tcs.SetException(new GoogleSignIn.SignInException(_status,ErrorMessage));
       }
     }
 
@@ -86,13 +97,19 @@ namespace Google {
     {
       while (Pending) await Task.Yield();
       await Task.Yield();
-      if (Status == GoogleSignInStatusCode.CANCELED) {
+      var _status = Status;
+      if (_status == GoogleSignInStatusCode.CANCELED)
+      {
         tcs.SetCanceled();
-      } else if (Status == GoogleSignInStatusCode.SUCCESS ||
-            Status == GoogleSignInStatusCode.SUCCESS_CACHE) {
+      }
+      else if (_status == GoogleSignInStatusCode.SUCCESS ||
+            _status == GoogleSignInStatusCode.SUCCESS_CACHE)
+      {
         tcs.SetResult(Result);
-      } else {
-        tcs.SetException(new GoogleSignIn.SignInException(Status));
+      }
+      else
+      {
+        tcs.SetException(new GoogleSignIn.SignInException(_status,ErrorMessage));
       }
     }
   }

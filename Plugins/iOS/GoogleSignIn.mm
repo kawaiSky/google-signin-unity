@@ -56,6 +56,7 @@ struct SignInResult {
   int result_code;
   bool finished;
   NSString* serverAuthCode;
+  NSString* errorMessage;
 };
 
 std::unique_ptr<SignInResult> currentResult_;
@@ -134,7 +135,7 @@ NSMutableArray* additionalScopes = nil;
               static_cast<long>(_error.code));
         currentResult_->result_code = kStatusCodeError;
       }
-
+      currentResult_->errorMessage = _error.localizedDescription;
       currentResult_->finished = true;
       UnpauseUnityPlayer();
     } else {
@@ -356,6 +357,11 @@ size_t GoogleSignIn_GetIdToken(GIDGoogleUser *guser, char *buf, size_t len) {
     NSString *val = token.tokenString;
 
   return CopyNSString(val, buf, len);
+}
+
+size_t GoogleSignIn_GetErrorMessage(SignInResult *result, char *buf, size_t len) {
+    NSString *val = result->errorMessage;
+    return CopyNSString(val, buf, len);
 }
 
 size_t GoogleSignIn_GetImageUrl(GIDGoogleUser *guser, char *buf, size_t len) {

@@ -24,6 +24,8 @@ namespace Google.Impl
 
     public GoogleSignInUser Result { get; private set; }
 
+    public string ErrorMessage { get; private set; }
+
     public GoogleSignInImplEditor(GoogleSignInConfiguration configuration)
     {
       this.configuration = configuration;

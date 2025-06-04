@@ -81,6 +81,12 @@ namespace Google.Impl {
         return (GoogleSignInStatusCode)GoogleSignInImpl.GoogleSignIn_Status(SelfPtr());
       }
     }
+
+    public string ErrorMessage {
+      get {
+        return GoogleSignInImpl.GoogleSignIn_GetErrorMessage(SelfPtr()); 
+      }
+    }
   }
 }
 #endif

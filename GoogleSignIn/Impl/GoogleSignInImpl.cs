@@ -187,7 +187,9 @@ namespace Google.Impl {
 	internal static IntPtr GoogleSignIn_Result(HandleRef self) => googleIdTokenCredential.GetRawObject();
 
 	internal static int GoogleSignIn_Status(HandleRef self) => GoogleSignInHelper.CallStatic<int>("getStatus");
-
+	
+	internal static string GoogleSignIn_GetErrorMessage(HandleRef self) => GoogleSignInHelper.CallStatic<string>("getErrorMessage");
+	
 	internal static string GoogleSignIn_GetServerAuthCode(HandleRef self) => authorizationResult?.Call<string>("getServerAuthCode");
 
 	internal static string GoogleSignIn_GetUserId(HandleRef self)
@@ -296,6 +298,9 @@ namespace Google.Impl {
 	internal static extern UIntPtr GoogleSignIn_GetIdToken(HandleRef self, [In, Out] byte[] bytes, UIntPtr len);
 
 	[DllImport(DllName)]
+	internal static extern UIntPtr GoogleSignIn_GetErrorMessage(HandleRef self, [In, Out] byte[] bytes, UIntPtr len);
+
+	[DllImport(DllName)]
 	internal static extern UIntPtr GoogleSignIn_GetImageUrl(HandleRef self, [In, Out] byte[] bytes, UIntPtr len);
 
 	[DllImport(DllName)]
@@ -318,6 +323,9 @@ namespace Google.Impl {
 
 	internal static string GoogleSignIn_GetIdToken(HandleRef self) =>
 		OutParamsToString((out_string, out_size) => GoogleSignIn_GetIdToken(self, out_string, out_size));
+
+	internal static string GoogleSignIn_GetErrorMessage(HandleRef self) =>
+		OutParamsToString((out_string, out_size) => GoogleSignIn_GetErrorMessage(self, out_string, out_size));
 
 	internal static string GoogleSignIn_GetImageUrl(HandleRef self) =>
 		OutParamsToString((out_string, out_size) => GoogleSignIn_GetImageUrl(self, out_string, out_size));

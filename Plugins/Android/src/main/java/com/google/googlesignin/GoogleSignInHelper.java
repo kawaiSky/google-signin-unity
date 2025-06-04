@@ -77,6 +77,12 @@ public class GoogleSignInHelper {
     return task != null && !task.isComplete() && !task.isCanceled();
   }
 
+  private static String _lastErrorMessage = "";
+
+  public static String getErrorMessage(){
+    return _lastErrorMessage;
+  }
+
   public static int getStatus() {
     if(signInFunction == null)
       return CommonStatusCodes.DEVELOPER_ERROR;
@@ -95,15 +101,18 @@ public class GoogleSignInHelper {
     {
       if (e instanceof GetCredentialCancellationException) {
         // UserCancel
-        logDebug("User canceled credential request");
+        _lastErrorMessage = "UserCanceled: " + e.getMessage();
+        logDebug(_lastErrorMessage);
         return CommonStatusCodes.CANCELED;
       } else if (e instanceof GetCredentialException) {
         // other Credential Exception
-        logError("Credential exception occurred: " + e.getClass().getSimpleName());
-        return CommonStatusCodes.INTERNAL_ERROR;
+        _lastErrorMessage = "Credential exception occurred: " + e.getClass().getSimpleName();
+        logError(_lastErrorMessage);
+        return CommonStatusCodes.API_NOT_CONNECTED;
       } else {
         // Not Credential Exception
-        logError("onFailure with INTERNAL_ERROR : " + e.getClass().toString() + " " + e.getMessage());
+        _lastErrorMessage = "onFailure with INTERNAL_ERROR : " + e.getClass().toString() + " " + e.getMessage();
+        logError(_lastErrorMessage);
         return CommonStatusCodes.INTERNAL_ERROR;
       }
     }
