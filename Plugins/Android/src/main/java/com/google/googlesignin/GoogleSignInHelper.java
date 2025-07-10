@@ -15,10 +15,14 @@
  */
 package com.google.googlesignin;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.CancellationSignal;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.pm.PackageInfoCompat;
 import androidx.credentials.ClearCredentialStateRequest;
 import androidx.credentials.Credential;
 import androidx.credentials.CredentialManager;
@@ -32,6 +36,8 @@ import androidx.credentials.exceptions.GetCredentialException;
 import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.AuthorizationResult;
 import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.Scope;
@@ -167,6 +173,41 @@ public class GoogleSignInHelper {
           return source.getTask();
         }
 
+        // 判断Play Service
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(UnityPlayer.currentActivity);
+        if (resultCode == 0){
+          // 手动判断版本
+          var support = isPlayServicesVersionSufficient(UnityPlayer.currentActivity);
+          if (!support){
+            resultCode = 2;
+          }
+        }
+        logDebug("Check GMS :" + resultCode);
+        if (resultCode != ConnectionResult.SUCCESS) {
+          // Google Play services 不可用或版本过低
+          if (apiAvailability.isUserResolvableError(resultCode)) {
+            // 可以通过弹窗提示用户更新
+            String errorString = "GMS NotAvailable:" + apiAvailability.getErrorString(resultCode);
+            try {
+              apiAvailability.getErrorDialog(UnityPlayer.currentActivity, resultCode, 1001).show();
+            } catch (Exception e) {
+              // 解决失败
+              errorString += " ShowDialogError:" + e.getMessage();
+
+            }
+            TaskCompletionSource<AuthorizationResult> source = new TaskCompletionSource<>();
+            source.trySetException(new Exception(errorString));
+            return source.getTask();
+          } else {
+            // 不可修复的错误，提示用户手动更新或联系支持
+            logDebug("This device is not supported.");
+            TaskCompletionSource<AuthorizationResult> source = new TaskCompletionSource<>();
+            source.trySetException(new Exception("GMS CheckError"));
+            return source.getTask();
+          }
+        }
+        
         cancellationSignal = new CancellationSignal();
 
         GetCredentialRequest.Builder getCredentialRequestBuilder = new GetCredentialRequest.Builder()
@@ -256,6 +297,21 @@ public class GoogleSignInHelper {
         });
       }
     };
+  }
+
+
+  private static final long MIN_PLAY_SERVICES_VERSION_FOR_GOOGLE_LOGIN = 230815045L;
+
+  public static boolean isPlayServicesVersionSufficient(Context context) {
+    try {
+      PackageInfo info = context.getPackageManager()
+              .getPackageInfo("com.google.android.gms", 0);
+      long versionCode = PackageInfoCompat.getLongVersionCode(info);
+      return versionCode >= MIN_PLAY_SERVICES_VERSION_FOR_GOOGLE_LOGIN;
+    } catch (PackageManager.NameNotFoundException e) {
+      // 默认有效
+      return true;
+    }
   }
 
   public static Task<AuthorizationResult> signIn() {
