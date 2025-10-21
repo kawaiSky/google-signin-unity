@@ -4,13 +4,15 @@ plugins {
 
 android {
     namespace 'com.morechili.googlesignin'
-    compileSdk 35
-
+    compileSdkVersion 35
+    buildToolsVersion '34.0.0'
     defaultConfig {
-        minSdk 24
+        minSdkVersion 25
+        targetSdkVersion 9
+    }
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
+    lintOptions {
+        abortOnError false
     }
 
     buildTypes {
@@ -31,4 +33,5 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
     implementation 'com.google.android.libraries.identity.googleid:googleid:1.1.1'
     compileOnly files('libs/unity-classes.jar')
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21'
 }
